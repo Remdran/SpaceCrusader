@@ -6,20 +6,41 @@ document.body.appendChild(canvas);
 canvas.style.border = "1px solid black";
 
 //==================================================================================================
-// VARIABLES FOR GAME SPEED / TIME
+// VARIABLES FOR GAME SPEED / TIME / SCORE
 //==================================================================================================
 var frameCount = 0;
+var score = 0;
+
+//==================================================================================================
+// HANDLE LOADING IMAGES FOR SPRITES
+//==================================================================================================
+var playerSprite = new Image();
+playerSprite.src = "img/player.png";
+
+// var bulletSprite = new Image();
+// bulletSprite.src = "img/player.png";
+
+var enemySprite = new Image();
+enemySprite.src = "img/enemy1.png";
+
+
+
+
+// Object to hold all the sprites but need to deal with individual x and ys so the drawing needs to be part of the Enemy/Player/Bullet function etc
+// var spriteManager = {};
+// spriteManager.enemySprite = new Image();
+// spriteManager.enemySprite.src = "img/player.png";
 
 //==================================================================================================
 // HANDLE THE PLAYER 
 //==================================================================================================
 var player = {
     x: 400,
-    y: 700,
-    speed: 7,
+    y: 600,
+    speed: 5,
     hp: 10,
-    height: 50,
-    width: 50
+    width: 87,
+    height: 146 
 };
 
 //==================================================================================================
@@ -60,7 +81,7 @@ function CreatePlayerBullet() {
 //==================================================================================================
 var enemyManager = {};
 
-function Enemy(x, y, speedX, speedY, side, width, height, type, id) {
+function Enemy(x, y, speedX, speedY, side, width, height, type, score, id) {
     var newEnemy = {
         x: x,
         y: y,
@@ -70,6 +91,7 @@ function Enemy(x, y, speedX, speedY, side, width, height, type, id) {
         width: width,
         height: height,
         type: type,
+        score: score,
         id: id
     };
     enemyManager[id] = newEnemy;
@@ -81,12 +103,13 @@ function CreateEnemy() {
     var speedX = Math.floor(Math.random() * (Math.floor(2) - Math.ceil(-2))) + Math.ceil(-2);
     var speedY = 3;
     var side = "enemy";
-    var width = 50;
-    var height = 50;
+    var width = 63;
+    var height = 119;
     var type = "unit";
+    var score = 1;
     var id = Math.random();
 
-    Enemy(x, y, speedX, speedY, side, width, height, type, id);
+    Enemy(x, y, speedX, speedY, side, width, height, type, score, id);
 }
 
 //==================================================================================================
@@ -132,13 +155,13 @@ function KeyUpHandler(e) {
 
 function UpdatePlayerPosition() {
     if (rightPressed && player.x < WIDTH - player.width) {
-        player.x += 7;
+        player.x += player.speed;
     } else if (leftPressed && player.x > 0) {
-        player.x -= 7;
+        player.x -= player.speed;
     } else if (upPressed && player.y > 0) {
-        player.y -= 7;
+        player.y -= player.speed;
     } else if (downPressed && player.y < HEIGHT - player.height) {
-        player.y += 7;
+        player.y += player.speed;
     }
 }
 
@@ -171,10 +194,10 @@ function CheckCollisionBounds(actor1, actor2) {
 }
 
 function CheckCollision(entity1, entity2) {
-    return entity1.x > entity2.x &&
-            entity1.x < entity2.x + entity2.width &&
-            entity1.y > entity2.y &&
-            entity1.y < entity2.y + entity2.height;
+    return entity1.x <= entity2.x + entity2.width &&
+            entity2.x <= entity1.x + entity1.width &&
+            entity1.y <= entity2.y + entity2.height &&
+            entity2.y <= entity1.y + entity1.height;
 }
 
 
@@ -227,6 +250,7 @@ function Update() {
 
                 if(collision) {
                     toDelete = true;
+                    score += enemyManager[enemyCheck].score;
                     delete enemyManager[enemyCheck];
                     break;
                 }
@@ -265,7 +289,8 @@ function Update() {
     // console.log(size);
     //===================================================
 
-    Draw();
+    Draw();    
+    requestAnimationFrame(Update);
 }
 //==================================================================================================
 // HANDLE RENDERING THE SPRITES
@@ -276,13 +301,28 @@ function DrawActor(actor) {
     ctx.rect(actor.x, actor.y, actor.width, actor.height);
     ctx.fillStyle = "#0095D";
     ctx.fill();
+
+    if (actor.side === "enemy") {
+        ctx.drawImage(enemySprite, actor.x, actor.y);
+    }
     ctx.restore();
+}
+
+function DrawScore(){
+    ctx.font = "16px Arial";
+    ctx.fillText("Score: " + score, 8, 20);
 }
 
 function Draw() {
     DrawActor(player);
+    DrawScore();
+    ctx.drawImage(playerSprite, player.x, player.y);
+   
 
+    // for (var img in spriteManager) {
+    //     ctx.drawImage(spriteManager[img], player.x, player.y);
+    // }
 }
 
-setInterval(Update, 10);
-
+//setInterval(Update, 10);
+Update();

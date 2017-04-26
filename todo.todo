@@ -10,7 +10,7 @@
 ☐ Add a Start Game feature where the game resets when player is out of lives and whenever game is launched
 ☐ Add artwork, player, enemy bullet sprites
     ☐ Check collision against new artwork
-☐ Score System
+✔ Score System @done (26/04/2017, 16:12:06)
     ☐ Maybe power ups?
 ☐ Front screen for the game. Logo, Title, New Game, Options etc
 ☐ Add levels and bosses to the game

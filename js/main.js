@@ -143,6 +143,42 @@ function UpdatePlayerPosition() {
 }
 
 //==================================================================================================
+// HANDLE COLLISION DETECTION FUNCTIONS
+//==================================================================================================
+function CheckDistance(actor1, actor2) {
+    var dx = actor1.x - actor2.x;
+    var dy = actor1.x - actor2.y;
+
+    return Math.sqrt(dx * dx + dy * dy);
+}
+
+function CheckCollisionBounds(actor1, actor2) {
+    var entity1 = {
+        x: actor1.x - actor1.width / 2,
+        y: actor1.y - actor1.height / 2,
+        width: actor1.width,
+        height: actor1.height
+    }
+
+    var entity2 = {
+        x: actor2.x - actor2.width / 2,
+        y: actor2.y - actor2.height / 2,
+        width: actor2.width,
+        height: actor2.height
+    }
+
+    return CheckCollision(entity1, entity2);
+}
+
+function CheckCollision(entity1, entity2) {
+    return entity1.x > entity2.x &&
+            entity1.x < entity2.x + entity2.width &&
+            entity1.y > entity2.y &&
+            entity1.y < entity2.y + entity2.height;
+}
+
+
+//==================================================================================================
 // UPDATE GAME LOOP
 //==================================================================================================
 function UpdateActor(actor) {
@@ -185,7 +221,17 @@ function Update() {
             toDelete = true;
         }
 
-        // Check bullet collision here
+        if(bulletManager[bullet].side === "player") {
+            for (var enemyCheck in enemyManager) {
+                var collision = CheckCollisionBounds(bulletManager[bullet], enemyManager[enemyCheck]);
+
+                if(collision) {
+                    toDelete = true;
+                    delete enemyManager[enemyCheck];
+                    break;
+                }
+            }
+        }
 
         if (toDelete) {
             delete bulletManager[bullet];
@@ -200,11 +246,17 @@ function Update() {
             deleting = true;
         }
 
+        var collided = CheckCollisionBounds(player, enemyManager[enemy]);
+
+        if (collided) {
+            player.hp -= 1;
+            console.log('player hp ' + player.hp);            
+            deleting = true;
+        }
+
         if (deleting) {
             delete enemyManager[enemy];
         }
-
-        // Check collision (against player?)
     }
 
     //==================================================

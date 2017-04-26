@@ -1,0 +1,18 @@
+✔ Add enemies @done (26/04/2017, 15:12:20)
+    ✔ Randomly positioned? @done (26/04/2017, 15:13:06)
+☐ Handle Collision
+    ☐ When collision happens delete enemy and bullets
+    ☐ Enemies shooting at the player + enemy bullet collision
+☐ Add player and enemy HP
+    ☐ Remove certain amount of hp when hit
+☐ Add player lives
+    ☐ Game over if player runs out of lives
+☐ Add a Start Game feature where the game resets when player is out of lives and whenever game is launched
+☐ Add artwork, player, enemy bullet sprites
+    ☐ Check collision against new artwork
+☐ Score System
+    ☐ Maybe power ups?
+☐ Front screen for the game. Logo, Title, New Game, Options etc
+☐ Add levels and bosses to the game
+☐ Sounds
+☐ Animated sprite sheets, explosion animations etc

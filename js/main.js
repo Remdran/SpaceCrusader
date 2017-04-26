@@ -6,6 +6,11 @@ document.body.appendChild(canvas);
 canvas.style.border = "1px solid black";
 
 //==================================================================================================
+// VARIABLES FOR GAME SPEED / TIME
+//==================================================================================================
+var frameCount = 0;
+
+//==================================================================================================
 // HANDLE THE PLAYER 
 //==================================================================================================
 var player = {
@@ -16,7 +21,6 @@ var player = {
     height: 50,
     width: 50
 };
-
 
 //==================================================================================================
 // HANDLE THE BULLETS
@@ -38,7 +42,6 @@ function Bullet(x, y, speed, side, width, height, type, id) {
     bulletManager[id] = newBullet;
 }
 
-
 function CreatePlayerBullet() {
     var x = player.x + (player.width / 2) - 10;
     var y = player.y;
@@ -51,6 +54,41 @@ function CreatePlayerBullet() {
 
     Bullet(x, y, speed, side, width, height, type, id)
 }
+
+//==================================================================================================
+// HANDLE THE ENEMIES
+//==================================================================================================
+var enemyManager = {};
+
+function Enemy(x, y, speedX, speedY, side, width, height, type, id) {
+    var newEnemy = {
+        x: x,
+        y: y,
+        speedX: speedX,
+        speedY: speedY,
+        side: side,
+        width: width,
+        height: height,
+        type: type,
+        id: id
+    };
+    enemyManager[id] = newEnemy;
+}
+
+function CreateEnemy() {
+    var x = Math.random() * (WIDTH - 200) + (100);
+    var y = 0;
+    var speedX = Math.floor(Math.random() * (Math.floor(2) - Math.ceil(-2))) + Math.ceil(-2);
+    var speedY = 3;
+    var side = "enemy";
+    var width = 50;
+    var height = 50;
+    var type = "unit";
+    var id = Math.random();
+
+    Enemy(x, y, speedX, speedY, side, width, height, type, id);
+}
+
 //==================================================================================================
 // HANDLE PLAYER MOVEMENT
 //==================================================================================================
@@ -104,7 +142,6 @@ function UpdatePlayerPosition() {
     }
 }
 
-
 //==================================================================================================
 // UPDATE GAME LOOP
 //==================================================================================================
@@ -122,19 +159,23 @@ function UpdateActorPosition(actor) {
         }
     }
 
-    if (actor.type === "enemy") {
-        actor.x += actor.speed;
-        actor.y += actor.speed;
-
-        if (actor.x < 0 || actor.x > WIDTH) {
-            actor.speed = -actor.speed;
+    if (actor.type == "unit") {
+        if (actor.x + actor.speedX < 0 + actor.width || actor.x + actor.speedX > WIDTH - actor.width) {
+            actor.speedX = -actor.speedX;
         }
+        actor.x += actor.speedX;
+        actor.y += actor.speedY;
     }
 }
 
 function Update() {
     ctx.clearRect(0, 0, WIDTH, HEIGHT);
+    frameCount++;
     UpdatePlayerPosition();
+
+    if (frameCount % 100 === 0) {
+        CreateEnemy();
+    }
 
     for (var bullet in bulletManager) {
         UpdateActor(bulletManager[bullet]);
@@ -151,6 +192,26 @@ function Update() {
         }
     }
 
+    for (var enemy in enemyManager) {
+        UpdateActor(enemyManager[enemy]);
+
+        var deleting = false;
+        if (enemyManager[enemy].y > HEIGHT) {
+            deleting = true;
+        }
+
+        if (deleting) {
+            delete enemyManager[enemy];
+        }
+
+        // Check collision (against player?)
+    }
+
+    //==================================================
+    // THIS PRINTS THE NUMBER OF BULLETS IN THE BULLETLIST(MANAGER)
+    // var size = Object.keys(enemyManager).length;
+    // console.log(size);
+    //===================================================
 
     Draw();
 }
@@ -168,6 +229,8 @@ function DrawActor(actor) {
 
 function Draw() {
     DrawActor(player);
+
 }
+
 setInterval(Update, 10);
 

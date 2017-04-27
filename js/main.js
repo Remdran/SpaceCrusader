@@ -24,8 +24,6 @@ var enemySprite = new Image();
 enemySprite.src = "img/enemy1.png";
 
 
-
-
 // Object to hold all the sprites but need to deal with individual x and ys so the drawing needs to be part of the Enemy/Player/Bullet function etc
 // var spriteManager = {};
 // spriteManager.enemySprite = new Image();
@@ -38,9 +36,9 @@ var player = {
     x: 400,
     y: 600,
     speed: 5,
-    hp: 10,
+    hp: 5,
     width: 87,
-    height: 146 
+    height: 146
 };
 
 //==================================================================================================
@@ -137,6 +135,10 @@ function KeyDownHandler(e) {
         spacePressed = true;
         CreatePlayerBullet();
     }
+
+    if(gameOver && e.keyCode == 13) {
+        StartGame();       
+    }
 }
 
 function KeyUpHandler(e) {
@@ -149,7 +151,7 @@ function KeyUpHandler(e) {
     } else if (e.keyCode == 40) {
         downPressed = false;
     } else if (e.keyCode == 32) {
-
+        spacePressed = false;
     }
 }
 
@@ -195,11 +197,28 @@ function CheckCollisionBounds(actor1, actor2) {
 
 function CheckCollision(entity1, entity2) {
     return entity1.x <= entity2.x + entity2.width &&
-            entity2.x <= entity1.x + entity1.width &&
-            entity1.y <= entity2.y + entity2.height &&
-            entity2.y <= entity1.y + entity1.height;
+        entity2.x <= entity1.x + entity1.width &&
+        entity1.y <= entity2.y + entity2.height &&
+        entity2.y <= entity1.y + entity1.height;
 }
 
+//==================================================================================================
+// HANDLE STARING / ENDING GAME
+//==================================================================================================
+var gameOver = false;
+
+function StartGame() {  
+    player.hp = 5;
+    frameCount = 0;
+    score = 0;
+    enemyManager = {};
+    bulletManager = {};
+    gameOver = false;
+}
+
+function GameOver() {
+
+}
 
 //==================================================================================================
 // UPDATE GAME LOOP
@@ -228,68 +247,73 @@ function UpdateActorPosition(actor) {
 }
 
 function Update() {
-    ctx.clearRect(0, 0, WIDTH, HEIGHT);
-    frameCount++;
-    UpdatePlayerPosition();
+    if (!gameOver) {
+        ctx.clearRect(0, 0, WIDTH, HEIGHT);
+        frameCount++;
+        UpdatePlayerPosition();
 
-    if (frameCount % 100 === 0) {
-        CreateEnemy();
-    }
-
-    for (var bullet in bulletManager) {
-        UpdateActor(bulletManager[bullet]);
-
-        var toDelete = false;
-        if (bulletManager[bullet].y < 0) {
-            toDelete = true;
+        if (frameCount % 100 === 0) {
+            CreateEnemy();
         }
 
-        if(bulletManager[bullet].side === "player") {
-            for (var enemyCheck in enemyManager) {
-                var collision = CheckCollisionBounds(bulletManager[bullet], enemyManager[enemyCheck]);
+        for (var bullet in bulletManager) {
+            UpdateActor(bulletManager[bullet]);
 
-                if(collision) {
-                    toDelete = true;
-                    score += enemyManager[enemyCheck].score;
-                    delete enemyManager[enemyCheck];
-                    break;
+            var toDelete = false;
+            if (bulletManager[bullet].y < 0) {
+                toDelete = true;
+            }
+
+            if (bulletManager[bullet].side === "player") {
+                for (var enemyCheck in enemyManager) {
+                    var collision = CheckCollisionBounds(bulletManager[bullet], enemyManager[enemyCheck]);
+
+                    if (collision) {
+                        toDelete = true;
+                        score += enemyManager[enemyCheck].score;
+                        delete enemyManager[enemyCheck];
+                        break;
+                    }
                 }
+            }
+
+            if (toDelete) {
+                delete bulletManager[bullet];
             }
         }
 
-        if (toDelete) {
-            delete bulletManager[bullet];
+        for (var enemy in enemyManager) {
+            UpdateActor(enemyManager[enemy]);
+
+            var deleting = false;
+            if (enemyManager[enemy].y > HEIGHT) {
+                deleting = true;
+            }
+
+            var collided = CheckCollisionBounds(player, enemyManager[enemy]);
+
+            if (collided) {
+                player.hp -= 1;
+                if (player.hp === 0) {
+                    gameOver = true;
+                    DrawGameOver();
+                }
+                deleting = true;
+            }
+
+            if (deleting) {
+                delete enemyManager[enemy];
+            }
         }
+
+        //==================================================
+        // THIS PRINTS THE NUMBER OF BULLETS IN THE BULLETLIST(MANAGER)
+        // var size = Object.keys(enemyManager).length;
+        // console.log(size);
+        //===================================================
+
+        Draw();
     }
-
-    for (var enemy in enemyManager) {
-        UpdateActor(enemyManager[enemy]);
-
-        var deleting = false;
-        if (enemyManager[enemy].y > HEIGHT) {
-            deleting = true;
-        }
-
-        var collided = CheckCollisionBounds(player, enemyManager[enemy]);
-
-        if (collided) {
-            player.hp -= 1;
-            console.log('player hp ' + player.hp);            
-            deleting = true;
-        }
-
-        if (deleting) {
-            delete enemyManager[enemy];
-        }
-    }
-
-    //==================================================
-    // THIS PRINTS THE NUMBER OF BULLETS IN THE BULLETLIST(MANAGER)
-    // var size = Object.keys(enemyManager).length;
-    // console.log(size);
-    //===================================================
-
-    Draw();    
     requestAnimationFrame(Update);
 }
 //==================================================================================================
@@ -308,16 +332,29 @@ function DrawActor(actor) {
     ctx.restore();
 }
 
-function DrawScore(){
+function DrawScore() {
     ctx.font = "16px Arial";
     ctx.fillText("Score: " + score, 8, 20);
+}
+
+function DrawHP() {
+    ctx.font = "16px Arial";
+    ctx.fillText("HP: " + player.hp, 8, 780);
+}
+
+function DrawGameOver() {
+    ctx.font = "32px Arial";
+    ctx.fillText("GAME OVER", 300, 200);
+    ctx.fillText("Press ENTER to start a new game", 180, 300);
 }
 
 function Draw() {
     DrawActor(player);
     DrawScore();
+    DrawHP();
     ctx.drawImage(playerSprite, player.x, player.y);
-   
+
+
 
     // for (var img in spriteManager) {
     //     ctx.drawImage(spriteManager[img], player.x, player.y);

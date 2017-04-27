@@ -7,7 +7,7 @@
     ✔ Remove certain amount of hp when hit @done (26/04/2017, 15:46:18)
 ☐ Add player lives
     ☐ Game over if player runs out of lives
-☐ Add a Start Game feature where the game resets when player is out of lives and whenever game is launched
+✔ Add a Start Game feature where the game resets when player is out of lives and whenever game is launched @done (27/04/2017, 10:17:16)
 ☐ Add artwork, player, enemy bullet sprites
     ☐ Check collision against new artwork
 ✔ Score System @done (26/04/2017, 16:12:06)

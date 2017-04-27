@@ -1,7 +1,7 @@
 const canvas = document.createElement("canvas");
 const ctx = canvas.getContext("2d");
 const WIDTH = canvas.width = 800;
-const HEIGHT = canvas.height = 800;
+const HEIGHT = canvas.height = 1048;
 document.body.appendChild(canvas);
 canvas.style.border = "1px solid black";
 
@@ -17,12 +17,21 @@ var score = 0;
 var playerSprite = new Image();
 playerSprite.src = "img/player.png";
 
-// var bulletSprite = new Image();
-// bulletSprite.src = "img/player.png";
+var bulletSprite = new Image();
+bulletSprite.src = "img/pBullet.png";
 
 var enemySprite = new Image();
 enemySprite.src = "img/enemy1.png";
 
+var backgroundImg = new Image();
+backgroundImg.src ="img/background.png";
+var bgx = 0;
+var bgy = 0;
+
+var backgroundImg2 = new Image();
+backgroundImg2.src ="img/background.png";
+var bg2x = 0;
+var bg2y = 0 - HEIGHT;
 
 // Object to hold all the sprites but need to deal with individual x and ys so the drawing needs to be part of the Enemy/Player/Bullet function etc
 // var spriteManager = {};
@@ -37,15 +46,14 @@ var player = {
     y: 600,
     speed: 5,
     hp: 5,
-    width: 87,
-    height: 146
+    width: 80,
+    height: 140
 };
 
 //==================================================================================================
 // HANDLE THE BULLETS
 //==================================================================================================
 var bulletManager = {};
-
 
 function Bullet(x, y, speed, side, width, height, type, id) {
     var newBullet = {
@@ -66,8 +74,8 @@ function CreatePlayerBullet() {
     var y = player.y;
     var speed = 7;
     var side = "player";
-    var width = 20;
-    var height = 20;
+    var width = 11;
+    var height = 11;
     var id = Math.random();
     var type = "bullet";
 
@@ -101,8 +109,8 @@ function CreateEnemy() {
     var speedX = Math.floor(Math.random() * (Math.floor(2) - Math.ceil(-2))) + Math.ceil(-2);
     var speedY = 3;
     var side = "enemy";
-    var width = 63;
-    var height = 119;
+    var width = 60;
+    var height = 102;
     var type = "unit";
     var score = 1;
     var id = Math.random();
@@ -209,11 +217,17 @@ var gameOver = false;
 
 function StartGame() {  
     player.hp = 5;
+    player.x = 400;
+    player.y = 600;
     frameCount = 0;
     score = 0;
     enemyManager = {};
     bulletManager = {};
     gameOver = false;
+    bgx = 0;
+    bgy = 0;
+    bg2x = 0;
+    bg2y = 0 - HEIGHT;
 }
 
 function GameOver() {
@@ -249,6 +263,7 @@ function UpdateActorPosition(actor) {
 function Update() {
     if (!gameOver) {
         ctx.clearRect(0, 0, WIDTH, HEIGHT);
+        DrawBackground();
         frameCount++;
         UpdatePlayerPosition();
 
@@ -269,6 +284,7 @@ function Update() {
                     var collision = CheckCollisionBounds(bulletManager[bullet], enemyManager[enemyCheck]);
 
                     if (collision) {
+                        //can remove enemy hp here if any have more than 1 hp
                         toDelete = true;
                         score += enemyManager[enemyCheck].score;
                         delete enemyManager[enemyCheck];
@@ -321,25 +337,42 @@ function Update() {
 //==================================================================================================
 function DrawActor(actor) {
     ctx.save();
-    ctx.beginPath();
-    ctx.rect(actor.x, actor.y, actor.width, actor.height);
-    ctx.fillStyle = "#0095D";
-    ctx.fill();
 
     if (actor.side === "enemy") {
         ctx.drawImage(enemySprite, actor.x, actor.y);
     }
+
+    if(actor.side === "player" && actor.type === "bullet") {
+        ctx.drawImage(bulletSprite, actor.x, actor.y);
+    }
+
     ctx.restore();
+}
+
+function DrawBackground() {
+    ctx.drawImage(backgroundImg, 0, bgy);
+    ctx.drawImage(backgroundImg, 0, bg2y);
+    bgy++;
+    bg2y++;
+
+    if(bgy > HEIGHT){
+        bgy = 0 - HEIGHT + 2;
+    }
+
+    if (bg2y > HEIGHT) {
+        bg2y = 0 - HEIGHT + 2;
+    }
 }
 
 function DrawScore() {
     ctx.font = "16px Arial";
+    ctx.fillStyle = "#FFF";
     ctx.fillText("Score: " + score, 8, 20);
 }
 
 function DrawHP() {
     ctx.font = "16px Arial";
-    ctx.fillText("HP: " + player.hp, 8, 780);
+    ctx.fillText("HP: " + player.hp, 8, 1030);
 }
 
 function DrawGameOver() {
@@ -348,11 +381,13 @@ function DrawGameOver() {
     ctx.fillText("Press ENTER to start a new game", 180, 300);
 }
 
-function Draw() {
+function Draw() {    
     DrawActor(player);
+    if(!gameOver){
+        ctx.drawImage(playerSprite, player.x, player.y);
+    }
     DrawScore();
     DrawHP();
-    ctx.drawImage(playerSprite, player.x, player.y);
 
 
 

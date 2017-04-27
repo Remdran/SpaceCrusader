@@ -3,16 +3,19 @@
 ✔ Handle Collision @done (26/04/2017, 15:45:41)
     ✔ When collision happens delete enemy and bullets @done (26/04/2017, 15:45:43)
     ☐ Enemies shooting at the player + enemy bullet collision
-☐ Add player and enemy HP
+✔ Add player and enemy HP @done (27/04/2017, 10:18:38)
     ✔ Remove certain amount of hp when hit @done (26/04/2017, 15:46:18)
-☐ Add player lives
-    ☐ Game over if player runs out of lives
+✔ Add player health @done (27/04/2017, 10:18:25)
+    ✔ Game over if player runs out of health @done (27/04/2017, 10:18:26)
 ✔ Add a Start Game feature where the game resets when player is out of lives and whenever game is launched @done (27/04/2017, 10:17:16)
-☐ Add artwork, player, enemy bullet sprites
-    ☐ Check collision against new artwork
+✔ Add artwork, player, enemy bullet sprites @done (27/04/2017, 11:26:44)
+    ✔ Check collision against new artwork @done (27/04/2017, 11:28:05)
 ✔ Score System @done (26/04/2017, 16:12:06)
     ☐ Maybe power ups?
 ☐ Front screen for the game. Logo, Title, New Game, Options etc
 ☐ Add levels and bosses to the game
 ☐ Sounds
 ☐ Animated sprite sheets, explosion animations etc
+✔ Scrolling background to give the illusion of always moving forward @done (27/04/2017, 11:28:12)
+    ☐ Optimise
+    

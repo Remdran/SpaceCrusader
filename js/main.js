@@ -10,6 +10,7 @@ canvas.style.border = "1px solid black";
 //==================================================================================================
 var frameCount = 0;
 var score = 0;
+var paused = false;
 
 //==================================================================================================
 // HANDLE LOADING IMAGES FOR SPRITES
@@ -43,11 +44,11 @@ var bg2y = 0 - HEIGHT;
 //==================================================================================================
 var player = {
     x: 400,
-    y: 600,
+    y: 900,
     speed: 5,
     hp: 5,
     width: 80,
-    height: 140
+    height: 140    
 };
 
 //==================================================================================================
@@ -126,6 +127,7 @@ var rightPressed = false;
 var upPressed = false;
 var downPressed = false;
 var spacePressed = false;
+var pPressed = false;
 
 document.addEventListener("keydown", KeyDownHandler, false);
 document.addEventListener("keyup", KeyUpHandler, false);
@@ -144,6 +146,11 @@ function KeyDownHandler(e) {
         CreatePlayerBullet();
     }
 
+    if(e.keyCode == 80) {
+        pPressed = true;
+        paused = !paused;    
+    }
+
     if(gameOver && e.keyCode == 13) {
         StartGame();       
     }
@@ -160,6 +167,10 @@ function KeyUpHandler(e) {
         downPressed = false;
     } else if (e.keyCode == 32) {
         spacePressed = false;
+    }
+
+    if(e.keyCode == 80) {
+        pPressed = false;        
     }
 }
 
@@ -261,74 +272,76 @@ function UpdateActorPosition(actor) {
 }
 
 function Update() {
-    if (!gameOver) {
-        ctx.clearRect(0, 0, WIDTH, HEIGHT);
-        DrawBackground();
-        frameCount++;
-        UpdatePlayerPosition();
+    if(!paused) {
+        if (!gameOver) {
+            ctx.clearRect(0, 0, WIDTH, HEIGHT);
+            DrawBackground();
+            frameCount++;
+            UpdatePlayerPosition();
 
-        if (frameCount % 100 === 0) {
-            CreateEnemy();
-        }
-
-        for (var bullet in bulletManager) {
-            UpdateActor(bulletManager[bullet]);
-
-            var toDelete = false;
-            if (bulletManager[bullet].y < 0) {
-                toDelete = true;
+            if (frameCount % 100 === 0) {
+                CreateEnemy();
             }
 
-            if (bulletManager[bullet].side === "player") {
-                for (var enemyCheck in enemyManager) {
-                    var collision = CheckCollisionBounds(bulletManager[bullet], enemyManager[enemyCheck]);
+            for (var bullet in bulletManager) {
+                UpdateActor(bulletManager[bullet]);
 
-                    if (collision) {
-                        //can remove enemy hp here if any have more than 1 hp
-                        toDelete = true;
-                        score += enemyManager[enemyCheck].score;
-                        delete enemyManager[enemyCheck];
-                        break;
+                var toDelete = false;
+                if (bulletManager[bullet].y < 0) {
+                    toDelete = true;
+                }
+
+                if (bulletManager[bullet].side === "player") {
+                    for (var enemyCheck in enemyManager) {
+                        var collision = CheckCollisionBounds(bulletManager[bullet], enemyManager[enemyCheck]);
+
+                        if (collision) {
+                            //can remove enemy hp here if any have more than 1 hp
+                            toDelete = true;
+                            score += enemyManager[enemyCheck].score;
+                            delete enemyManager[enemyCheck];
+                            break;
+                        }
                     }
                 }
-            }
 
-            if (toDelete) {
-                delete bulletManager[bullet];
-            }
-        }
-
-        for (var enemy in enemyManager) {
-            UpdateActor(enemyManager[enemy]);
-
-            var deleting = false;
-            if (enemyManager[enemy].y > HEIGHT) {
-                deleting = true;
-            }
-
-            var collided = CheckCollisionBounds(player, enemyManager[enemy]);
-
-            if (collided) {
-                player.hp -= 1;
-                if (player.hp === 0) {
-                    gameOver = true;
-                    DrawGameOver();
+                if (toDelete) {
+                    delete bulletManager[bullet];
                 }
-                deleting = true;
             }
 
-            if (deleting) {
-                delete enemyManager[enemy];
+            for (var enemy in enemyManager) {
+                UpdateActor(enemyManager[enemy]);
+
+                var deleting = false;
+                if (enemyManager[enemy].y > HEIGHT) {
+                    deleting = true;
+                }
+
+                var collided = CheckCollisionBounds(player, enemyManager[enemy]);
+
+                if (collided) {
+                    player.hp -= 1;
+                    if (player.hp === 0) {
+                        gameOver = true;
+                        DrawGameOver();
+                    }
+                    deleting = true;
+                }
+
+                if (deleting) {
+                    delete enemyManager[enemy];
+                }
             }
+
+            //==================================================
+            // THIS PRINTS THE NUMBER OF BULLETS IN THE BULLETLIST(MANAGER)
+            // var size = Object.keys(enemyManager).length;
+            // console.log(size);
+            //===================================================
+
+            Draw();
         }
-
-        //==================================================
-        // THIS PRINTS THE NUMBER OF BULLETS IN THE BULLETLIST(MANAGER)
-        // var size = Object.keys(enemyManager).length;
-        // console.log(size);
-        //===================================================
-
-        Draw();
     }
     requestAnimationFrame(Update);
 }

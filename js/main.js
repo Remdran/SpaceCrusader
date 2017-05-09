@@ -25,12 +25,12 @@ var enemySprite = new Image();
 enemySprite.src = "img/enemy1.png";
 
 var backgroundImg = new Image();
-backgroundImg.src ="img/background.png";
+backgroundImg.src = "img/background.png";
 var bgx = 0;
 var bgy = 0;
 
 var backgroundImg2 = new Image();
-backgroundImg2.src ="img/background.png";
+backgroundImg2.src = "img/background.png";
 var bg2x = 0;
 var bg2y = 0 - HEIGHT;
 
@@ -48,7 +48,7 @@ var player = {
     speed: 5,
     hp: 5,
     width: 80,
-    height: 140    
+    height: 140
 };
 
 //==================================================================================================
@@ -75,6 +75,19 @@ function CreatePlayerBullet() {
     var y = player.y;
     var speed = 7;
     var side = "player";
+    var width = 11;
+    var height = 11;
+    var id = Math.random();
+    var type = "bullet";
+
+    Bullet(x, y, speed, side, width, height, type, id)
+}
+
+function CreateEnemyBullet(enemy) {
+    var x = enemy.x + (enemy.width / 2) - 10;
+    var y = enemy.y;
+    var speed = 7;
+    var side = "enemy";
     var width = 11;
     var height = 11;
     var id = Math.random();
@@ -146,13 +159,13 @@ function KeyDownHandler(e) {
         CreatePlayerBullet();
     }
 
-    if(e.keyCode == 80) {
+    if (e.keyCode == 80) {
         pPressed = true;
-        paused = !paused;    
+        paused = !paused;
     }
 
-    if(gameOver && e.keyCode == 13) {
-        StartGame();       
+    if (gameOver && e.keyCode == 13) {
+        StartGame();
     }
 }
 
@@ -169,8 +182,8 @@ function KeyUpHandler(e) {
         spacePressed = false;
     }
 
-    if(e.keyCode == 80) {
-        pPressed = false;        
+    if (e.keyCode == 80) {
+        pPressed = false;
     }
 }
 
@@ -226,7 +239,7 @@ function CheckCollision(entity1, entity2) {
 //==================================================================================================
 var gameOver = false;
 
-function StartGame() {  
+function StartGame() {
     player.hp = 5;
     player.x = 400;
     player.y = 600;
@@ -272,7 +285,7 @@ function UpdateActorPosition(actor) {
 }
 
 function Update() {
-    if(!paused) {
+    if (!paused) {
         if (!gameOver) {
             ctx.clearRect(0, 0, WIDTH, HEIGHT);
             DrawBackground();
@@ -283,11 +296,20 @@ function Update() {
                 CreateEnemy();
             }
 
+            if (frameCount % 400 === 0) {
+                var size = Object.keys(enemyManager).length;
+                var rndm = Math.floor(Math.random() * (size - 0) + 0);
+                console.log(rndm);
+                console.log(size);
+                console.log(enemyManager[0].x);
+                CreateEnemyBullet(enemyManager);
+            }
+
             for (var bullet in bulletManager) {
                 UpdateActor(bulletManager[bullet]);
 
                 var toDelete = false;
-                if (bulletManager[bullet].y < 0) {
+                if (bulletManager[bullet].y < 0 || bulletManager[bullet].y > HEIGHT) {
                     toDelete = true;
                 }
 
@@ -302,6 +324,15 @@ function Update() {
                             delete enemyManager[enemyCheck];
                             break;
                         }
+                    }
+                }
+
+                if (bulletManager[bullet].side === "enemy") {
+                    var collision = CheckCollisionBounds(bulletManager[bullet], player);
+
+                    if (collision) {
+                        toDelete = true;
+                        break;
                     }
                 }
 
@@ -355,7 +386,7 @@ function DrawActor(actor) {
         ctx.drawImage(enemySprite, actor.x, actor.y);
     }
 
-    if(actor.side === "player" && actor.type === "bullet") {
+    if (actor.side === "player" && actor.type === "bullet") {
         ctx.drawImage(bulletSprite, actor.x, actor.y);
     }
 
@@ -368,7 +399,7 @@ function DrawBackground() {
     bgy++;
     bg2y++;
 
-    if(bgy > HEIGHT){
+    if (bgy > HEIGHT) {
         bgy = 0 - HEIGHT + 2;
     }
 
@@ -394,9 +425,9 @@ function DrawGameOver() {
     ctx.fillText("Press ENTER to start a new game", 180, 300);
 }
 
-function Draw() {    
+function Draw() {
     DrawActor(player);
-    if(!gameOver){
+    if (!gameOver) {
         ctx.drawImage(playerSprite, player.x, player.y);
     }
     DrawScore();

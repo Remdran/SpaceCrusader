@@ -296,15 +296,14 @@ function Update() {
                 CreateEnemy();
             }
 
-            if (frameCount % 400 === 0) {
-                //var size = Object.keys(enemyManager).length;
-                //var rndm = Math.floor(Math.random() * (size - 0) + 0);
-                //console.log(rndm);
-                //console.log(size);
-                //console.log(enemyManager[0].x);
-                //CreateEnemyBullet(enemyManager);
-                
-            }
+            // if (frameCount % 400 === 0) {
+            //     //var size = Object.keys(enemyManager).length;
+            //     //var rndm = Math.floor(Math.random() * (size - 0) + 0);
+            //     //console.log(rndm);
+            //     //console.log(size);
+            //     //console.log(enemyManager[0].x);
+            //     //CreateEnemyBullet(enemyManager);                
+            // }
 
             for (var bullet in bulletManager) {
                 UpdateActor(bulletManager[bullet]);

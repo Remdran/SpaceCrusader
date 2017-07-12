@@ -303,6 +303,7 @@ function Update() {
                 //console.log(size);
                 //console.log(enemyManager[0].x);
                 //CreateEnemyBullet(enemyManager);
+                
             }
 
             for (var bullet in bulletManager) {
